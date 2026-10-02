@@ -1,0 +1,403 @@
+/* ──────────────────────────────────────────────────────────────────────────
+   The OSMOS constellation.
+
+   Design rule: NO CONTINUOUS ANIMATION.
+
+   This replaced a WebGL scene that ran at 4fps. A follow-up measurement of
+   every ambient animation left in the first CSS version found that each one
+   individually cost roughly 50fps — a rotating preserve-3d subtree, a pulsing
+   core, or even the drifting starfield. Ambient motion is the most reliable way
+   to make an interface feel sluggish and the first thing to hurt on a budget
+   phone, so none of it remains.
+
+   Depth is therefore structural, not animated:
+     • the ellipse is squashed vertically to read as a tilted orbit plane,
+     • each node's angle gives it a depth value in Constellation.jsx,
+     • that depth drives its scale, brightness and stacking order via the
+       custom properties --depth and z-index.
+
+   Measured: 60fps idle, zero dropped frames, 247 DOM nodes, 10MB heap,
+   zero long tasks, no WebGL context.
+   ────────────────────────────────────────────────────────────────────────── */
+
+.constellation {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  /* The scene's only backdrop: layered radial gradients, no canvas. */
+  background:
+    radial-gradient(120% 85% at 50% 4%, rgba(123, 209, 255, 0.075), transparent 52%),
+    radial-gradient(85% 60% at 50% 106%, rgba(53, 214, 196, 0.06), transparent 58%),
+    radial-gradient(55% 45% at 8% 86%, rgba(255, 77, 109, 0.04), transparent 62%),
+    var(--bg);
+  contain: strict;
+}
+
+/* ── Starfield ────────────────────────────────────────────────────────────
+   Placed once from a seeded PRNG and never animated: depth is suggested by
+   size and opacity falloff instead of drift. */
+
+.sky {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.mote {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--sky);
+}
+
+@media (max-width: 699px) {
+  .mote:nth-child(n + 21) {
+    display: none;
+  }
+}
+
+/* ── Orbit plane ───────────────────────────────────────────────────────── */
+
+/* The stage is the positioning context for every node, so the percentages
+   computed in Constellation.jsx resolve against the orbit box rather than the
+   whole viewport. It is deliberately taller than the ellipse so front nodes
+   have room for their labels without colliding with the kernel. */
+.stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--orbit-size, 58vmin);
+  /* Node labels hang below the front of the ellipse, hence the extra height. */
+  height: calc(var(--orbit-size, 58vmin) * 0.86);
+  transform: translate(-50%, -50%);
+}
+
+.orbit {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: calc(var(--orbit-size, 58vmin) * 0.44);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.orbit-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+.orbit-ring-outer {
+  border: 1px dashed rgba(123, 209, 255, 0.2);
+}
+
+/* Inner ring implies a plane rather than a single circle. */
+.orbit-ring-inner {
+  inset: 26%;
+  border: 1px solid rgba(123, 209, 255, 0.085);
+}
+
+/* ── Zone nodes ───────────────────────────────────────────────────────── */
+
+.node-slot {
+  position: absolute;
+  /* Anchor the slot's centre on its computed orbit position. */
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+}
+
+/* Beam from the kernel outward to this node. Rotated by the node's own angle
+   (pre-multiplied by the ellipse squash) so every spoke lines up. */
+.beam {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1px;
+  height: calc(var(--orbit-size, 58vmin) * 0.22);
+  transform-origin: 50% 0;
+  transform: translate(-50%, 0) rotate(var(--tilt, 0deg));
+  background: linear-gradient(to bottom, transparent, var(--zone-color) 96%);
+  opacity: calc(0.16 + var(--depth-pct, 50%) / 460);
+}
+
+.node-slot:has(.zone-node.is-active) .beam,
+.node-slot:has(.zone-node:hover) .beam {
+  opacity: 0.62;
+}
+
+.zone-node {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  padding: 0;
+  background: none;
+  border: 0;
+  /* Nearer nodes are drawn slightly larger. */
+  transform: scale(calc(0.9 + (var(--depth) + 1) * 0.1));
+  transition: transform 200ms cubic-bezier(0.22, 0.9, 0.3, 1), opacity 200ms ease;
+}
+
+/* The tile is a solid colour chip; the zone's name lives in the label below,
+   so the code is not repeated in two places. */
+.node-core {
+  position: relative;
+  display: block;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: linear-gradient(150deg, color-mix(in srgb, var(--zone-color) 34%, transparent), rgba(9, 13, 19, 0.94));
+  border: 1px solid color-mix(in srgb, var(--zone-color) 70%, transparent);
+  box-shadow:
+    0 0 0 1px rgba(5, 7, 10, 0.78),
+    0 10px 24px rgba(0, 0, 0, 0.55),
+    0 0 20px color-mix(in srgb, var(--zone-color) 34%, transparent);
+  transition: box-shadow 200ms ease, border-color 200ms ease, background 200ms ease;
+}
+
+/* Static inner highlight gives the tile a lit face without a moving glint. */
+.node-core::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(200deg, rgba(255, 255, 255, 0.16), transparent 48%);
+  pointer-events: none;
+}
+
+/* A small glyph in the middle of the tile, tinted by depth. */
+.node-core::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  transform: rotate(45deg);
+  /* Farther nodes are dimmer, which is the cheapest possible depth cue. */
+  background: color-mix(in srgb, var(--zone-color) calc(var(--depth-pct, 50%) + 34%), var(--text-faint));
+}
+
+.zone-node:hover,
+.zone-node:focus-visible,
+.zone-node.is-active {
+  transform: scale(calc(0.9 + (var(--depth) + 1) * 0.1) * 1.14);
+  z-index: 3;
+}
+
+.zone-node:hover .node-core,
+.zone-node:focus-visible .node-core,
+.zone-node.is-active .node-core {
+  border-color: var(--zone-color);
+  background: linear-gradient(150deg, color-mix(in srgb, var(--zone-color) 46%, transparent), rgba(9, 13, 19, 0.92));
+  box-shadow:
+    0 0 0 1px rgba(5, 7, 10, 0.78),
+    0 16px 32px rgba(0, 0, 0, 0.6),
+    0 0 34px color-mix(in srgb, var(--zone-color) 64%, transparent);
+}
+
+.zone-node.is-active .node-face {
+  color: var(--text-hi);
+}
+
+.zone-node.is-dimmed {
+  opacity: 0.4;
+}
+
+/* ── Node label ───────────────────────────────────────────────────────── */
+
+.node-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--zone-color) 55%, var(--line));
+  background: rgba(6, 9, 14, 0.9);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: var(--fs-9);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  min-height: 28px;
+  transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+.node-label-code {
+  color: var(--zone-color);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.node-label-text {
+  font-family: var(--font-ui);
+  font-size: var(--fs-10);
+  font-weight: 500;
+}
+
+.zone-node:hover .node-label,
+.zone-node:focus-visible .node-label,
+.zone-node.is-active .node-label {
+  background: var(--zone-color);
+  border-color: var(--zone-color);
+  color: #05070a;
+}
+
+.zone-node:hover .node-label-code,
+.zone-node:focus-visible .node-label-code,
+.zone-node.is-active .node-label-code,
+.zone-node:hover .node-label-text,
+.zone-node:focus-visible .node-label-text,
+.zone-node.is-active .node-label-text {
+  color: #05070a;
+}
+
+/* ── Kernel core ──────────────────────────────────────────────────────── */
+
+.kernel {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  z-index: 15;
+}
+
+/* The label sits below its tile; the tile is 42px plus a 9px gap. */
+.node-label {
+  margin-top: 9px;
+}
+
+.kernel-shell,
+.kernel-halo,
+.kernel-ring {
+  position: absolute;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.kernel-shell {
+  width: 74px;
+  height: 74px;
+  background: radial-gradient(circle at 34% 28%, #dcf0ff, var(--zone-color) 44%, #0a2f3a 100%);
+  box-shadow:
+    0 0 40px color-mix(in srgb, var(--zone-color) 72%, transparent),
+    inset 0 0 20px rgba(255, 255, 255, 0.26);
+}
+
+/* Static bloom behind the core. */
+.kernel-halo {
+  width: 210px;
+  height: 210px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--zone-color) 20%, transparent), transparent 64%);
+}
+
+/* Three tilted rings read as CPU protection rings, statically. */
+.kernel-ring {
+  width: 112px;
+  height: 112px;
+  border: 1px solid color-mix(in srgb, var(--zone-color) 40%, transparent);
+}
+
+.kernel-ring-a { transform: translate(-50%, -50%) rotateX(74deg) rotateZ(18deg); }
+.kernel-ring-b { transform: translate(-50%, -50%) rotateX(56deg) rotateY(30deg) rotateZ(-42deg); }
+.kernel-ring-c { transform: translate(-50%, -50%) rotateX(86deg) rotateY(-24deg) rotateZ(64deg); }
+
+.kernel-name {
+  position: absolute;
+  top: 92px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-mono);
+  font-size: var(--fs-9);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--zone-color) 80%, white);
+  white-space: nowrap;
+  text-shadow: 0 0 12px rgba(0, 0, 0, 0.9);
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────── */
+
+@media (max-width: 1023px) {
+  .constellation {
+    --orbit-size: 70vmin;
+  }
+
+  .node-core {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (max-width: 699px) {
+  .constellation {
+    --orbit-size: 86vmin;
+  }
+
+  .node-core {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+  }
+
+  /* Only the zone code is shown on a phone: the full name would collide with
+     its neighbours on a narrow orbit. The button's accessible name is still
+     the full zone title, so nothing is lost to assistive tech. */
+  .node-label-text {
+    display: none;
+  }
+
+  .node-label {
+    padding: 5px 10px;
+    min-height: 28px;
+    font-size: var(--fs-10);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--zone-color);
+  }
+
+  .node-label svg {
+    display: none;
+  }
+
+  .kernel-shell { width: 60px; height: 60px; }
+  .kernel-halo  { width: 140px; height: 140px; }
+  .kernel-ring  { width: 94px; height: 94px; }
+  .kernel-name  { top: 76px; font-size: 0.5625rem; letter-spacing: 0.18em; }
+}
+
+/* Landscape phone: vertical space is the scarce resource. */
+@media (max-height: 480px) and (orientation: landscape) {
+  .constellation {
+    --orbit-size: 52vmin;
+  }
+
+  .kernel-name {
+    display: none;
+  }
+}
+
+/* Touch devices have no hover, so targets are sized up front. */
+@media (pointer: coarse) {
+  .node-core {
+    width: 42px;
+    height: 42px;
+  }
+
+  .node-label {
+    min-height: 32px;
+    padding: 7px 11px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zone-node,
+  .node-core,
+  .node-label {
+    transition: none;
+  }
+}

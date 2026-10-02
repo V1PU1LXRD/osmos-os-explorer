@@ -1,0 +1,559 @@
+You are a senior creative frontend engineer, systems programmer, UI/UX art director, and GitHub deployment expert.
+
+Your task is to build a complete, polished, original, and academically presentable mini-project named:
+
+“OSMOS: An Interactive 3D Operating-System Concept Explorer”
+
+This is for a second-year B.Tech student specializing in Artificial Intelligence and Machine Learning. The goal is to create an immersive 3D web application that explains core Operating System concepts in a memorable, visually premium, interactive way—not a generic dashboard, template, or AI-generated-looking website.
+
+IMPORTANT: This must be a frontend-first mini-project that can be built, run, pushed to GitHub, and hosted for free or nearly free using GitHub Pages. Do not require a paid API, paid cloud platform, database, backend server, login system, or secret environment variables.
+
+==================================================
+1. PROJECT VISION
+==================================================
+
+Create a cinematic, browser-based, interactive 3D “operating system universe.”
+
+The user enters a living 3D digital world representing a computer’s internal OS environment. Instead of presenting OS topics as boring notes or cards, show them as interactive visual metaphors:
+
+- Processes are glowing moving entities/tasks.
+- CPU scheduling is visualized as a dynamic execution lane/timeline.
+- Memory is a structured 3D memory grid with allocation and release animations.
+- Deadlock is represented as processes/resources caught in a visible dependency cycle.
+- File systems are represented as an explorable hierarchical storage galaxy/tree.
+- Threads are lightweight connected execution paths.
+- System calls are portal-like interactions between User Mode and Kernel Mode.
+- The kernel is a protected central glowing core.
+
+The application must feel like an original interactive digital exhibition, not a copied operating-system simulator, not a game clone, and not a collection of basic Bootstrap cards.
+
+Core experience:
+“A student explores the invisible world inside an operating system.”
+
+==================================================
+2. PRIMARY LEARNING OBJECTIVE
+==================================================
+
+The project should teach and demonstrate these Operating System concepts:
+
+1. Process lifecycle
+   - New
+   - Ready
+   - Running
+   - Waiting / Blocked
+   - Terminated
+
+2. CPU scheduling
+   - FCFS
+   - Shortest Job First (non-preemptive is sufficient)
+   - Round Robin
+   - Compare average waiting time and turnaround time.
+
+3. Memory management
+   - Fixed partition allocation or paging simulation
+   - Allocation, deallocation, fragmentation visualization
+   - Clear educational explanation.
+
+4. Deadlock
+   - Four necessary conditions
+   - Resource allocation graph
+   - Detect a deadlock cycle visually
+   - Show a simple recovery action.
+
+5. File system
+   - Hierarchical directory structure
+   - Create, open, move, and delete visual demo actions
+   - Explain files, directories, paths, and permissions at a beginner level.
+
+6. User Mode vs Kernel Mode
+   - Show a system-call transition animation.
+   - Explain why hardware access is protected.
+
+Do not overload the interface. Teach through interaction, tooltips, narrative, animation, and short explanations.
+
+==================================================
+3. TECH STACK AND CONSTRAINTS
+==================================================
+
+Use:
+
+- React + Vite
+- JavaScript (not TypeScript unless it significantly improves implementation)
+- Three.js through @react-three/fiber
+- @react-three/drei for helpers and controls
+- Framer Motion for 2D UI transitions
+- CSS / CSS Modules / modern plain CSS for styling
+- Lucide React for icons
+- GitHub Pages deployment using GitHub Actions
+
+Avoid:
+
+- Paid APIs
+- Backend/database
+- Authentication
+- Heavy assets that make the repository too large
+- Copyrighted external 3D models
+- Generic stock images
+- Excessive dependencies
+- Unrealistic complex physics
+- Fake functionality
+- Any API keys or secrets
+
+Use deterministic local demo data and seeded random values if needed.
+
+The final repository must work after:
+
+npm install
+npm run dev
+
+And must build successfully with:
+
+npm run build
+
+==================================================
+4. ANTI-AI-SLOP DESIGN RULES
+==================================================
+
+The interface must not look like generic “AI slop.”
+
+Strictly avoid:
+
+- Purple-to-blue gradient backgrounds everywhere
+- Repeated rounded white cards
+- A dashboard grid with meaningless analytics
+- Generic hero sections with “Welcome to the Future”
+- Excessive glassmorphism
+- Random floating blobs
+- Overuse of neon colors
+- Fake charts or meaningless data
+- Overly rounded pill buttons everywhere
+- Placeholder text such as “Lorem Ipsum”
+- Repeated generic icons
+- Generic startup templates
+- Excessive animations that harm usability
+- Giant headings that waste screen space
+- “Generated by AI” style visual clichés
+
+Design direction:
+
+- Premium dark technical exhibition.
+- Inspired by scientific visualization, spacecraft control systems, old-school UNIX terminals, systems diagrams, and contemporary digital art installations.
+- Use a mostly charcoal/near-black background.
+- Use color purposefully:
+  - Cyan/teal = process activity
+  - Amber/yellow = CPU/attention
+  - Magenta/red = conflict/deadlock/error
+  - Green = success/completion
+  - Indigo/blue = memory and storage
+- Use subtle grain/noise only if it remains lightweight.
+- Use sharp or lightly rounded panels, not excessive rounded cards.
+- Typography should be clean, technical, readable, and professional.
+- Use visible hierarchy and spacious but intentional layouts.
+- All visual effects must support comprehension.
+
+The experience should look handcrafted, deliberate, and portfolio-worthy.
+
+==================================================
+5. APPLICATION FLOW
+==================================================
+
+Create these views/screens:
+
+A. BOOT SEQUENCE
+- A short loading/boot screen.
+- Simulate OS initialization with meaningful messages:
+  - Loading kernel modules...
+  - Mounting virtual file system...
+  - Initializing memory map...
+  - Starting process scheduler...
+  - Entering OSMOS...
+- Include a Skip Intro button.
+- Do not make it unnecessarily long; approximately 2–4 seconds.
+- The user should then transition smoothly into the main experience.
+
+B. MAIN 3D OS UNIVERSE
+- Full-screen 3D interactive scene.
+- Central Kernel Core.
+- Surrounding interactive zones/nodes:
+  - Process Lab
+  - CPU Scheduler
+  - Memory Matrix
+  - Deadlock Observatory
+  - File System Vault
+  - System Call Gateway
+- Each zone should be clearly discoverable through labels, hover feedback, and visual identity.
+- Clicking a zone opens a detailed module panel without navigating away abruptly.
+- Include camera transitions when selecting a zone.
+- Include an accessible non-3D fallback navigation menu.
+
+C. LEARNING MODULE PANEL
+- When a module is selected, open a focused overlay/panel.
+- Provide:
+  - A short concept explanation
+  - Interactive controls
+  - A visual simulation
+  - A “What you learned” summary
+  - A Reset Simulation button
+  - A close/back button
+- Keep the panel readable on smaller screens.
+
+D. KNOWLEDGE CHECK
+- Add a short 5-question interactive quiz.
+- Use questions based on concepts actually shown in the simulation.
+- Display score, corrections, and a “Restart Quiz” option.
+- Do not use a generic quiz-template appearance.
+
+E. ABOUT / PROJECT INFO
+- Add a compact project information section:
+  - Project name: OSMOS
+  - Full form: Operating System Model & Observation Space
+  - Objective
+  - Technology stack
+  - Concepts covered
+  - Developed by: [YOUR NAME]
+  - GitHub repository link placeholder
+- Put placeholders clearly in one easy-to-edit configuration file.
+
+==================================================
+6. MODULE-SPECIFIC REQUIREMENTS
+==================================================
+
+6.1 PROCESS LAB
+
+Create an animated process lifecycle visualization.
+
+Requirements:
+- Show process states:
+  New → Ready → Running → Waiting → Ready → Terminated
+- Use 4–6 labeled demo processes:
+  P1, P2, P3, P4, etc.
+- Each process must have:
+  - ID
+  - Burst time
+  - Priority
+  - Current state
+  - Color identity
+- Animate processes moving between states.
+- Allow the user to:
+  - Add a demo process
+  - Pause/resume simulation
+  - Reset simulation
+  - Select a process to inspect its details
+- Include concise explanations for each state.
+
+6.2 CPU SCHEDULER
+
+Create a working scheduling simulation.
+
+Requirements:
+- Let the user choose:
+  - FCFS
+  - SJF
+  - Round Robin
+- Show a list of processes with:
+  - Process ID
+  - Arrival time
+  - Burst time
+  - Priority if needed
+- For Round Robin, allow time quantum selection between 1 and 5.
+- Generate an animated Gantt chart.
+- Calculate and display:
+  - Completion time
+  - Waiting time
+  - Turnaround time
+  - Average waiting time
+  - Average turnaround time
+- Use a small fixed demo dataset so calculations are reliable.
+- Use real scheduling logic; do not show static fake output.
+- Explain in plain language why a given algorithm behaves differently.
+
+6.3 MEMORY MATRIX
+
+Create a visually understandable memory simulation.
+
+Choose one approach:
+Option A: Fixed partitions
+Option B: Paging
+
+Preferred approach: Fixed partitions, because it is easier for a mini-project demonstration.
+
+Requirements:
+- Visualize memory as a vertical or 3D block/grid.
+- Show at least 8 memory partitions of varying size.
+- Show process memory requests.
+- Let the user choose:
+  - First Fit
+  - Best Fit
+  - Worst Fit
+- Animate memory allocation and deallocation.
+- Show external fragmentation clearly.
+- Display:
+  - Total memory
+  - Used memory
+  - Free memory
+  - Fragmented/free blocks
+- Use real allocation logic.
+- Include a simple explanation of fragmentation.
+
+6.4 DEADLOCK OBSERVATORY
+
+Create an interactive resource allocation graph.
+
+Requirements:
+- Represent processes as circles/nodes.
+- Represent resources as rectangles/nodes.
+- Draw request and allocation edges.
+- Include a “Create Deadlock Scenario” button.
+- When clicked, create a visible circular wait, such as:
+  P1 holds R1 and waits for R2
+  P2 holds R2 and waits for R1
+- Detect and visibly highlight the cycle.
+- Clearly show the four Coffman conditions:
+  - Mutual exclusion
+  - Hold and wait
+  - No preemption
+  - Circular wait
+- Include a “Recover” action:
+  - Terminate/release one selected process resource
+  - Remove the cycle
+  - Explain what changed
+- Avoid claiming the simulation is a complete production deadlock detector. Clearly label it as an educational model.
+
+6.5 FILE SYSTEM VAULT
+
+Create a visually attractive interactive file explorer.
+
+Requirements:
+- Show an initial virtual directory structure, for example:
+
+/
+├── home
+│   └── student
+│       ├── projects
+│       │   └── osmos
+│       └── notes
+├── etc
+├── var
+└── bin
+
+- Allow user to:
+  - Navigate folders
+  - Create a file
+  - Create a folder
+  - Delete a selected item
+  - View full path/breadcrumb
+- Persist only in browser localStorage, if persistence is added.
+- Explain:
+  - Absolute vs relative paths
+  - File vs directory
+  - Basic read/write/execute permission notation
+- Use a 3D “data vault” metaphor in the main scene, but a clean usable explorer interface in the module panel.
+
+6.6 SYSTEM CALL GATEWAY
+
+Create a visual explanation of protected execution modes.
+
+Requirements:
+- Show two clear regions:
+  - User Mode
+  - Kernel Mode
+- Let the user trigger sample system calls:
+  - open()
+  - read()
+  - write()
+  - createProcess()
+- Animate a request moving:
+  Application → System Call Gateway → Kernel → Hardware/Resource → Response
+- Explain that applications do not directly control protected hardware resources.
+- Include an easy analogy, such as:
+  “A system call is like asking a secured service desk to access a protected room.”
+
+==================================================
+7. 3D INTERACTION REQUIREMENTS
+==================================================
+
+Build an optimized, lightweight 3D scene.
+
+Requirements:
+- Use low-poly geometry, procedural shapes, particles, lines, emissive materials, and lighting instead of downloading large models.
+- Include orbit-like camera movement but do not make the user feel lost.
+- Include:
+  - Hover highlighting
+  - Click interactions
+  - Smooth camera focus transitions
+  - Small ambient movements
+  - Reduced-motion support
+- Avoid motion sickness:
+  - No constant spinning camera
+  - No aggressive camera shake
+  - No strobe effects
+  - No rapid flashing
+- Add a “Reset View” control.
+- Use labels in 3D only where readable; do not overcrowd the scene.
+- Ensure controls work with mouse and touch.
+
+==================================================
+8. RESPONSIVE, ACCESSIBLE, AND PERFORMANCE RULES
+==================================================
+
+Responsive requirements:
+- Desktop: full immersive 3D scene and detailed interactions.
+- Tablet: simplified but functional 3D scene.
+- Mobile: optimized scene with fallback module navigation and readable controls.
+- Do not hide all functionality on mobile.
+
+Accessibility requirements:
+- Keyboard-accessible core controls.
+- Visible focus styles.
+- Semantic buttons and form labels.
+- Sufficient text contrast.
+- Do not rely on color alone for process states.
+- Provide text summaries of visual simulations.
+- Respect prefers-reduced-motion.
+
+Performance requirements:
+- Load fast on GitHub Pages.
+- Keep assets small.
+- Avoid excessive post-processing.
+- Avoid rendering unnecessary objects.
+- Use memoization and efficient React state where helpful.
+- Lazy load large modules if practical.
+- Target smooth interaction on an average laptop.
+
+==================================================
+9. CODE QUALITY REQUIREMENTS
+==================================================
+
+Use a clean, understandable project structure.
+
+Suggested structure:
+
+src/
+  components/
+  modules/
+    ProcessLab/
+    CpuScheduler/
+    MemoryMatrix/
+    DeadlockObservatory/
+    FileSystemVault/
+    SystemCallGateway/
+  three/
+    scene/
+    nodes/
+    effects/
+  data/
+  utils/
+    scheduling.js
+    memoryAllocation.js
+    deadlockDetection.js
+    fileSystem.js
+  styles/
+  config/
+    projectConfig.js
+  App.jsx
+  main.jsx
+
+Requirements:
+- Separate UI components from algorithms.
+- Write real reusable scheduling, memory allocation, and graph cycle detection utility functions.
+- Add short comments only where logic is non-obvious.
+- Use clear variable names.
+- No giant single-file implementation.
+- No unfinished TODOs.
+- No dead code.
+- No console errors.
+- Use local mock/demo data.
+- Provide error-safe interactions and reset buttons.
+
+==================================================
+10. README REQUIREMENTS
+==================================================
+
+Create a high-quality README.md with:
+
+1. Project title and one-line description
+2. Screenshot/GIF placeholder section
+3. Features
+4. OS concepts demonstrated
+5. Tech stack
+6. Installation instructions
+7. Run instructions
+8. Build instructions
+9. GitHub Pages deployment instructions
+10. Project folder structure
+11. Explanation of each algorithm:
+   - FCFS
+   - SJF
+   - Round Robin
+   - First Fit
+   - Best Fit
+   - Worst Fit
+   - Deadlock cycle detection
+12. Limitations
+13. Future improvements
+14. Credits
+15. License recommendation: MIT License
+
+Use beginner-friendly but professional wording because this may be reviewed by a college faculty member.
+
+==================================================
+11. GITHUB PAGES DEPLOYMENT
+==================================================
+
+Prepare this project specifically for GitHub Pages.
+
+Requirements:
+- Configure Vite base path properly.
+- Use relative/compatible asset paths.
+- Include a GitHub Actions workflow file in:
+  .github/workflows/deploy.yml
+- The workflow should:
+  - Run on pushes to main
+  - Install dependencies
+  - Build the Vite project
+  - Deploy the dist folder to GitHub Pages
+- Explain in README exactly what the user must change:
+  1. Create a GitHub repository named osmos-os-explorer
+  2. Push the generated code to main
+  3. Enable GitHub Pages in repository Settings → Pages
+  4. Select GitHub Actions as the deployment source
+  5. Update the Vite base path if the repository name changes
+
+Also add a simple fallback note for deploying to Netlify or Vercel for free, but make GitHub Pages the main recommended method.
+
+==================================================
+12. REQUIRED FINAL OUTPUT
+==================================================
+
+Generate the entire complete project, not merely an outline.
+
+Your final response must include:
+
+1. A brief explanation of the project architecture.
+2. Full directory tree.
+3. Complete code for every required file.
+4. package.json with all dependencies.
+5. Vite configuration.
+6. GitHub Actions deployment workflow.
+7. README.md.
+8. Instructions to replace:
+   - [YOUR NAME]
+   - GitHub repository URL
+   - Repository base path
+9. Clear terminal commands for:
+   - Creating the project
+   - Installing dependencies
+   - Running locally
+   - Building
+   - Initializing Git
+   - Pushing to GitHub
+
+Before finalizing, verify mentally that:
+- The app can run with npm install and npm run dev.
+- The build works with npm run build.
+- No paid service is required.
+- All OS simulations use genuine frontend logic.
+- The project is visually original and not a generic AI-styled webpage.
+- The design is academic enough for a mini-project evaluation and premium enough for a GitHub portfolio.
+
+Build this project with a refined, cohesive, cinematic, high-quality experience. Prioritize a smaller number of well-executed interactive features over dozens of incomplete features.

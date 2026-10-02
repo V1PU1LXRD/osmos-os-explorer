@@ -1,0 +1,15 @@
+# Normalize line endings so a Windows checkout does not rewrite every file.
+# Without this, git's default `core.autocrlf` turns LF into CRLF in the working
+# tree and every subsequent diff on Linux shows the whole file as changed.
+* text=auto eol=lf
+
+# Binary assets must never be line-ending converted — that corrupts them.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg text eol=lf
+
+# Lockfiles are generated and should always match what npm writes.
+package-lock.json -diff

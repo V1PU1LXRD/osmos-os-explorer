@@ -1,0 +1,444 @@
+/* ── Application shell ─────────────────────────────────────────────────────
+   Layout skeleton: full-viewport constellation + floating UI chrome.
+   Everything that is not a module panel lives here. */
+
+.app {
+  position: fixed;
+  inset: 0;
+  height: 100vh;
+  height: var(--vh);
+  background: var(--bg);
+}
+
+.scene-holder {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-canvas);
+  /* The constellation is a fixed backdrop, not a scroll surface: without this
+     a drag across it rubber-bands the page on touch devices. */
+  touch-action: none;
+}
+
+/* Top command bar */
+.topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  /* Sit below the notch / status bar on notched devices. */
+  padding-top: var(--sat);
+  min-height: calc(var(--bar-h) + var(--sat));
+  z-index: var(--z-ui);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-inline: 14px;
+  background: linear-gradient(to bottom, rgba(5, 7, 10, 0.92), rgba(5, 7, 10, 0.55) 78%, transparent);
+  pointer-events: none;
+}
+
+.topbar > * {
+  pointer-events: auto;
+}
+
+/* Buttons collapse to icons first, then the labels wrap away entirely. */
+.topbar .btn-label {
+  display: inline;
+}
+
+/* `.btn` is declared in ui.css, which loads after this file and sets
+   `display: inline-flex` at the same specificity — so the reset below must be
+   scoped to win the cascade. Without the `.topbar` prefix the toggle stayed
+   visible on desktop, where it is meaningless. */
+.topbar .topbar-rail-toggle {
+  display: none;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  user-select: none;
+}
+
+.brand-mark {
+  font-family: var(--font-mono);
+  font-size: var(--fs-14);
+  font-weight: 700;
+  letter-spacing: 0.34em;
+  color: var(--text-hi);
+}
+
+.brand-mark::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 9px;
+  background: var(--sky);
+  box-shadow: 0 0 8px var(--sky);
+  transform: rotate(45deg) translateY(-1px);
+}
+
+.brand-sub {
+  font-family: var(--font-mono);
+  font-size: var(--fs-9);
+  letter-spacing: var(--track-mid);
+  color: var(--text-faint);
+  text-transform: uppercase;
+}
+
+.topbar-spacer {
+  flex: 1;
+}
+
+/* ── Status rail (left) ──────────────────────────────────────────────────── */
+.rail {
+  position: absolute;
+  left: 0;
+  top: calc(var(--bar-h) + var(--sat));
+  bottom: 0;
+  /* Clear the home indicator so the last card is never trapped under it. */
+  padding-bottom: calc(12px + var(--sab));
+  width: var(--rail-w);
+  max-width: 86vw;
+  z-index: var(--z-ui);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-inline: 12px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  background: linear-gradient(to right, rgba(5, 7, 10, 0.85), rgba(5, 7, 10, 0.35) 72%, transparent);
+}
+
+/* Scrim only exists when the rail is a drawer. */
+.rail-scrim {
+  display: none;
+}
+
+.rail-section {
+  border: 1px solid var(--line-soft);
+  background: rgba(10, 14, 20, 0.72);
+  border-radius: var(--radius);
+  padding: 11px 12px;
+}
+
+.rail-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: var(--fs-9);
+  letter-spacing: var(--track-wide);
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 9px;
+}
+
+.rail-title .rail-kbd {
+  font-size: 1rem;
+  letter-spacing: 0;
+}
+
+.zone-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.zone-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 6px 7px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  color: var(--text);
+  text-align: left;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.zone-row:hover,
+.zone-row:focus-visible {
+  background: rgba(18, 24, 38, 0.9);
+  border-color: var(--line);
+}
+
+.zone-row.is-active {
+  background: rgba(123, 209, 255, 0.07);
+  border-color: rgba(123, 209, 255, 0.35);
+  color: var(--text-hi);
+}
+
+.zone-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  transform: rotate(45deg);
+  flex-shrink: 0;
+}
+
+.zone-row-label {
+  font-size: var(--fs-11);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.zone-row-code {
+  font-family: var(--font-mono);
+  font-size: var(--fs-9);
+  letter-spacing: 0.12em;
+  color: var(--text-faint);
+}
+
+.zone-row.is-active .zone-row-code {
+  color: var(--sky);
+}
+
+.legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-10);
+  color: var(--text-dim);
+}
+
+.legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.legend-row b {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.kernel-note {
+  font-size: var(--fs-10);
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.kernel-note b {
+  color: var(--sky);
+  font-weight: 600;
+}
+
+/* ── Scene overlay bits ──────────────────────────────────────────────────── */
+.view-hud {
+  position: absolute;
+  right: calc(14px + var(--sar));
+  bottom: calc(14px + var(--sab));
+  z-index: var(--z-ui);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.view-hud .hint {
+  font-family: var(--font-mono);
+  font-size: var(--fs-9);
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  margin-right: 4px;
+  user-select: none;
+}
+
+/* Touch devices have no keyboard and no hover, so the hint is noise. */
+@media (pointer: coarse) {
+  .view-hud .hint {
+    display: none;
+  }
+}
+
+/* Zone intro card shown at the bottom-left of the constellation */
+.zone-brief {
+  position: absolute;
+  left: calc(var(--rail-w) + 14px);
+  bottom: calc(14px + var(--sab));
+  z-index: var(--z-ui);
+  width: min(420px, calc(100vw - var(--rail-w) - 28px));
+  max-height: min(48vh, 320px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--line);
+  background: rgba(10, 14, 20, 0.88);
+  border-radius: var(--radius);
+  padding: 13px 15px;
+  backdrop-filter: blur(6px);
+}
+
+.zone-brief-code {
+  font-family: var(--font-mono);
+  font-size: var(--fs-9);
+  letter-spacing: var(--track-wide);
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 4px;
+}
+
+.zone-brief-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.zone-brief-title h3 {
+  font-size: var(--fs-16);
+  font-weight: 600;
+  color: var(--text-hi);
+  letter-spacing: 0.01em;
+}
+
+.zone-brief p {
+  margin-top: 6px;
+  font-size: var(--fs-11);
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Responsive behaviour, coarse to fine.
+
+   The rail is never removed — on small screens it becomes a dismissible
+   drawer, because it is the only always-visible map of the six zones.
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* Tablet portrait and below: rail slides over the scene. */
+@media (max-width: 1023px) {
+  .topbar .topbar-rail-toggle {
+    display: inline-flex;
+  }
+
+  .rail {
+    transform: translateX(-102%);
+    transition: transform 260ms cubic-bezier(0.22, 0.9, 0.3, 1);
+    background: rgba(8, 11, 17, 0.96);
+    backdrop-filter: blur(8px);
+    box-shadow: 26px 0 60px rgba(0, 0, 0, 0.5);
+    border-right: 1px solid var(--line);
+    padding-inline: 12px;
+  }
+
+  .rail.is-open {
+    transform: translateX(0);
+  }
+
+  .rail-scrim {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: calc(var(--z-ui) - 1);
+    background: rgba(3, 5, 8, 0.6);
+    animation: rail-fade 200ms ease;
+  }
+
+  @keyframes rail-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  .zone-brief {
+    left: 14px;
+    width: min(420px, calc(100vw - 28px));
+  }
+}
+
+/* Phone: the brief becomes a bottom sheet above the HUD, and the top bar
+   drops to icon-only so nothing wraps or overflows. */
+@media (max-width: 699px) {
+  .topbar {
+    gap: 6px;
+    padding-inline: 10px;
+    --bar-h: 48px;
+  }
+
+  .topbar .btn-label {
+    display: none;
+  }
+
+  .brand-sub {
+    display: none;
+  }
+
+  .brand-mark {
+    font-size: var(--fs-12);
+    letter-spacing: 0.22em;
+  }
+
+  .zone-brief {
+    left: 10px;
+    right: 10px;
+    width: auto;
+    bottom: calc(62px + var(--sab));
+    max-height: min(42vh, 260px);
+    padding: 11px 13px;
+  }
+
+  .zone-brief-title h3 {
+    font-size: var(--fs-14);
+  }
+
+  .view-hud {
+    right: 10px;
+    bottom: calc(10px + var(--sab));
+  }
+
+  .rail {
+    width: min(300px, 84vw);
+  }
+}
+
+/* Landscape phone: vertical space is the scarce resource. */
+@media (max-height: 480px) and (orientation: landscape) {
+  .topbar {
+    --bar-h: 44px;
+  }
+
+  .zone-brief {
+    max-height: min(56vh, 190px);
+    bottom: calc(56px + var(--sab));
+  }
+
+  .rail {
+    padding-top: 8px;
+  }
+}
+
+/* Very wide desktops: cap the rail so it does not drift away from the scene. */
+@media (min-width: 1600px) {
+  :root {
+    --rail-w: 300px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zone-row,
+  .zone-row:hover {
+    transition: none;
+  }
+
+  .rail {
+    transition: none;
+  }
+
+  .rail-scrim {
+    animation: none;
+  }
+}

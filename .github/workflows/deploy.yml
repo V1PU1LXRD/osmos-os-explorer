@@ -1,0 +1,69 @@
+name: Deploy OSMOS to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Allow the workflow to publish to GitHub Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only one deployment at a time; do not cancel a run that is already publishing.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Configure Pages before building. This step is what fails when Pages is
+      # not enabled for the repository or the source is not set to "GitHub
+      # Actions" — so running it early surfaces that misconfiguration here
+      # instead of after a full build.
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Build production bundle
+        run: npm run build
+
+      # The layout audit drives headless Chromium against dist/, so it has to
+      # run after the build. Without this, a broken tap target or a sideways
+      # scroll on a phone would ship silently — that is exactly how the 13px
+      # checkbox and the desktop-visible rail toggle reached `main`.
+      - name: Install Chromium for the layout audit
+        run: npx playwright install --with-deps chromium
+
+      - name: Audit layout across device profiles
+        run: npm run verify:layout
+
+      - name: Upload build artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

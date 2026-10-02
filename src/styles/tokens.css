@@ -1,0 +1,108 @@
+:root {
+  /* ── Palette ──────────────────────────────────────────────────────────── */
+  --bg: #05070a;
+  --bg-elevated: #0a0e14;
+  --bg-panel: #0d1219;
+  --bg-soft: #121826;
+
+  --line: #232c3a;
+  --line-soft: #1a2230;
+  --line-strong: #34445c;
+
+  --text-hi: #e8edf4;
+  --text: #aeb9c9;
+  --text-dim: #6b7789;
+  --text-faint: #48536a;
+
+  --cyan: #35d6c4;
+  --cyan-dim: #1f7a70;
+  --amber: #f0b429;
+  --magenta: #ff4d6d;
+  --green: #3fbf6f;
+  --blue: #6c8cff;
+  --indigo: #6c8cff;
+  --sky: #7bd1ff;
+  --orange: #ff8a5c;
+  --violet: #c58bff;
+
+  --danger-bg: rgba(255, 77, 109, 0.08);
+  --danger-line: rgba(255, 77, 109, 0.35);
+  --ok-bg: rgba(63, 191, 111, 0.08);
+  --ok-line: rgba(63, 191, 111, 0.35);
+
+  /* ── Type ─────────────────────────────────────────────────────────────── */
+  --font-ui: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", "Cascadia Code", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+
+  --fs-9: 0.6875rem;
+  --fs-10: 0.75rem;
+  --fs-11: 0.8125rem;
+  --fs-12: 0.875rem;
+  --fs-13: 0.9375rem;
+  --fs-14: 1rem;
+  --fs-16: 1.125rem;
+  --fs-18: 1.3125rem;
+  --fs-22: 1.625rem;
+
+  --track-wide: 0.16em;
+  --track-mid: 0.1em;
+
+  /* ── Layout ───────────────────────────────────────────────────────────── */
+  --radius: 8px;
+  --radius-sm: 5px;
+  --radius-lg: 12px;
+  --bar-h: 52px;
+  --rail-w: 262px;
+  --gap: 14px;
+  --pad: 16px;
+
+  /* ── Responsive scales ─────────────────────────────────────────────────
+     One breakpoint system, referenced everywhere. Values are tuned so the
+     layout changes in deliberate steps rather than drifting. */
+  --bp-sm: 480px;   /* large phone portrait */
+  --bp-md: 700px;   /* phone landscape / small tablet */
+  --bp-lg: 1024px;  /* tablet landscape / small laptop */
+  --bp-xl: 1400px;  /* desktop */
+
+  /* Fluid gutters and gaps — used instead of fixed --pad on small screens. */
+  --space: clamp(10px, 2.4vw, 16px);
+  --space-lg: clamp(14px, 3vw, 20px);
+
+  /* Minimum comfortable touch target (WCAG 2.5.5 / platform HIG). */
+  --touch: 44px;
+  --touch-sm: 38px;
+
+  /* Safe-area insets for notched phones. 0 on desktop. */
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+
+  /* Real viewport height on mobile browsers where the URL bar collapses.
+     Falls back to 100% where dvh is unsupported. */
+  --vh: 100dvh;
+
+  /* ── Layers ───────────────────────────────────────────────────────────── */
+  --z-canvas: 0;
+  --z-ui: 10;
+  --z-panel: 20;
+  --z-overlay: 30;
+  --z-boot: 40;
+  --z-toast: 50;
+}
+
+/* Larger type on big screens only — never scales type on phones, where
+   browser zoom and OS font scaling already do that work. */
+@media (min-width: 1280px) {
+  :root {
+    --fs-9: 0.7rem;
+    --fs-10: 0.765rem;
+    --fs-11: 0.83rem;
+    --fs-12: 0.875rem;
+    --fs-13: 0.95rem;
+    --fs-14: 1rem;
+    --fs-16: 1.15rem;
+    --fs-18: 1.35rem;
+    --fs-22: 1.7rem;
+  }
+}
